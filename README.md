@@ -1,5 +1,41 @@
 # telegram-markdown-entities
 
+Stop fighting Telegram’s Markdown/HTML parser. Ship text + entities for zero-escape, zero-surprise, exact rendering—where unsupported bits safely fall back to plain text.
+
+If you’re tired of Telegram MarkdownV2/HTML parse errors…
+
+Top failure cases (and why they happen):
+
+“Can’t parse entities” from MarkdownV2 — special characters not escaped (_ * [ ] ( ) ~ > # + - = | { } . !`), or escaping in the wrong context (e.g., inside code).
+
+Unbalanced delimiters — missing/misplaced *, _, `, ~~, ||, or code fences ….
+
+Illegal nesting/overlap — e.g., mixing **bold _italic**_ or putting styles inside code/pre.
+
+Broken links — [label](url) with spaces/parentheses not URL-encoded ( , ), (), or unmatched brackets.
+
+HTML tag issues — unknown/disallowed tags/attributes, mis-nested tags like <b><i>…</b></i>, unclosed tags.
+
+Double parsing — sending both parse_mode and manual entities leads to surprises; Telegram’s parser still interferes.
+
+Edge text — underscores in words/URLs, emoji/ZWJ sequences that shift what the parser thinks are boundaries.
+
+The new paradigm: Entities-only (no parse_mode)
+
+We don’t ask Telegram to parse. We send text + entities, so formatting is explicit and deterministic.
+
+No escaping ever. Special characters stay as-is; styles are applied by offsets/lengths, not by punctuation.
+
+UTF-16–correct offsets. Emoji, non-BMP symbols, ZWJ sequences—handled; entity bounds stay valid.
+
+No illegal overlaps. code/pre are atomic; we prevent forbidden nests before sending.
+
+Graceful fallback. Anything we don’t support is left as plain text—safe, readable, no runtime errors.
+
+Future-proof. Parser changes on Telegram’s side don’t break you; your rendering remains stable.
+
+One-liner value prop:
+
 Convert Markdown text into plain messages and [Telegram message entities](https://core.telegram.org/api/entities) with ease.
 
 This library takes a string written in standard Markdown (such as the
