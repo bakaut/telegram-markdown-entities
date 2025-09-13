@@ -16,6 +16,18 @@ specifying a `parse_mode`) you avoid the pitfalls of Telegram’s own
 Markdown parser – there’s no need to escape special characters, and
 your messages render exactly as intended.
 
+Send the text with an entities array and without parse_mode to bypass Telegram’s Markdown quirks—no escaping needed, and the message renders exactly as you designed.
+
+Pair your text with entities (skip parse_mode) to sidestep Telegram’s Markdown parser: no special-char escaping, just precise, predictable rendering.
+
+Use entities instead of parse_mode to avoid Telegram’s Markdown pitfalls—no escape gymnastics, and the output matches your intent.
+
+Deliver text plus entities (no parse_mode) and you’ll dodge parser surprises: zero escaping and faithful, deterministic formatting.
+
+By sending entities alongside the text and omitting parse_mode, you eliminate Markdown parsing issues—nothing to escape, and the result is pixel-perfect.
+
+Ship the message with entities only; don’t set parse_mode. You’ll skip Telegram’s parser entirely, so special characters are safe and formatting is exact.
+
 ## Features
 
 * **Inline formatting**: supports bold (`**text**`), italic (`*text*` or
