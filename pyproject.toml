@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "telegram-markdown-entities"
+version = "0.1.0"
+description = "Convert Markdown into plain text and Telegram message entities."
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [
+    {name = "Telegram Markdown Entities Developers", email = "dev@example.com"},
+]
+license = {text = "MIT"}
+keywords = ["telegram", "markdown", "entities", "bot", "tg"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://example.com"
+Source = "https://github.com/yourusername/telegram-markdown-entities"
+
+[tool.setuptools]
+# Explicitly include the package in the distribution
+packages = ["telegram_markdown"]
