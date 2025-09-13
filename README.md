@@ -25,7 +25,7 @@ We send text + entities, so **formatting is explicit and deterministic**.
 - Future-proof. Parser changes on Telegram’s side don’t break you; your rendering remains stable.
 
 
-## Convert Markdown(or any) text into plain(valid) telegram messages and with ease.  with ease.
+## Convert Markdown(or any) text into plain(valid) telegram messages and with ease.
 
 This library takes a string written in standard Markdown (such as the
 output of a language model or contents of a README) and returns two
