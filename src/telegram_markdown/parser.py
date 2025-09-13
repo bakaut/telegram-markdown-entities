@@ -25,18 +25,13 @@ import re
 from dataclasses import dataclass
 from typing import List, Tuple, Optional, Dict
 
-# The following code was generated from the parent project and moved
-# into this standalone package.  The core logic remains unchanged.
-
-# Constants used for list rendering.  NBSP is a non‑breaking space to
-# prevent line breaks between a list marker and the text.  FIGSPACE is
-# a figure space used to pad numbers in ordered lists so that they
-# align vertically.
+# Constants used for list rendering.  NBSP is a non‑breaking space to prevent
+# line breaks between a list marker and the text.  FIGSPACE is a figure
+# space used to pad numbers in ordered lists so that they align vertically.
 NBSP = '\u00A0'
 FIGSPACE = '\u2007'
-# Cycle of bullet symbols used for nested unordered lists.  These
-# symbols repeat with increasing nesting depth: level 0 → '•',
-# level 1 → '◦', level 2 → '▪'.
+# Cycle of bullet symbols used for nested unordered lists.  These symbols
+# repeat with increasing nesting depth: level 0 → '•', level 1 → '◦', level 2 → '▪'.
 BULLET_MARKERS = ['•', '◦', '▪']
 
 
@@ -125,7 +120,7 @@ def parse_markdown_to_entities(markdown_text: str) -> Tuple[str, List[Dict[str, 
     This function orchestrates the entire conversion process.  It
     normalises newlines, extracts fenced code blocks, then delegates
     parsing of the surrounding fragments to :func:`_parse_fragment`,
-    which handles headings, block quotes, lists and inline
+    which handles headings and block quotes in addition to inline
     formatting.  Offsets are accumulated in UTF‑16 code units so
     they may be passed directly to the Telegram Bot API.  The returned
     entity list is sorted by ascending offset so that parent entities
@@ -145,8 +140,7 @@ def parse_markdown_to_entities(markdown_text: str) -> Tuple[str, List[Dict[str, 
         A pair ``(message, entities)`` where ``message`` is the plain
         text of the original document with all Markdown delimiters
         removed, and ``entities`` is a list of dictionaries describing
-        the formatting to be applied.  Each dictionary is the result
-        of calling :meth:`MessageEntity.to_dict` on an entity object.
+        the formatting to be applied.
     """
 
     if not isinstance(markdown_text, str):
@@ -402,47 +396,40 @@ def _parse_inline_entities(text: str, base_offset: int) -> Tuple[str, List[Messa
 
     return ''.join(output_chars), entities
 
-
 def _parse_fragment(fragment: str, base_offset: int) -> Tuple[str, List[MessageEntity]]:
     """Parse a fragment of Markdown that does not contain code fences.
 
-    In addition to inline formatting supported by
-    :func:`_parse_inline_entities`, this function recognises
-    top‑level constructs that span complete lines:
+    In addition to inline formatting supported by :func:`_parse_inline_entities`,
+    this function recognises top‑level constructs that span complete lines:
 
-    * **Headings**: Lines beginning with one or more ``#`` characters
-      followed by a space are treated as headings.  The heading
-      markers are stripped from the output and the remaining text is
-      wrapped in a single ``bold`` entity (regardless of the heading
-      level).  Inline formatting inside the heading is still
-      processed normally.
+    * **Headings**: Lines beginning with one or more ``#`` characters followed by
+      a space are treated as headings.  The heading markers are stripped
+      from the output and the remaining text is wrapped in a single ``bold``
+      entity (regardless of the heading level).  Inline formatting inside
+      the heading is still processed normally.
 
-    * **Block quotes**: Lines starting with ``>`` (optionally
-      preceded by whitespace) are interpreted as block quotes.  The
-      ``>`` and any following space are removed from the output.  If
-      the text immediately following ``>`` begins with ``||``, the
-      quote will be marked as collapsed (``collapsed=True``) and
-      clients will render it as an expandable/collapsed block
-      quotation【885819747867534†L114-L123】.  Consecutive quote lines are
-      coalesced into a single quote entity spanning the entire region,
-      including newlines.  Inline formatting inside the quote is
-      honoured.
+    * **Block quotes**: Lines starting with ``>`` (optionally preceded by
+      whitespace) are interpreted as block quotes.  The ``>`` and any
+      following space are removed from the output.  If the text immediately
+      following ``>`` begins with ``||``, the quote will be marked as
+      ``expandable_blockquote`` (collapsed by default in the Telegram UI);
+      otherwise it is a normal ``blockquote``.  Consecutive quote lines
+      are coalesced into a single quote entity spanning the entire region,
+      including newlines.  Inline formatting inside the quote is honoured.
 
-    * **Unordered and ordered lists**: Lines beginning with ``-``,
-      ``*`` or ``+`` followed by a space are treated as unordered
-      list items.  Lines beginning with digits followed by ``.`` or
-      ``)`` and a space are treated as ordered list items.  The
-      indentation (spaces or tabs) of the marker determines the
-      nesting level.  Unordered lists cycle through the bullet
-      symbols ``•``, ``◦`` and ``▪`` at increasing nesting depths.
-      Ordered lists pad numbers with figure spaces so that
-      multi‑digit numbers align.  Continuation lines (those with
-      greater indentation that do not start with a list marker) are
-      indented to align with the text of the previous list item.
-      Inline formatting inside list items is honoured.
+    * **Unordered and ordered lists**: Lines beginning with ``-``, ``*`` or
+      ``+`` followed by a space are treated as unordered list items.  Lines
+      beginning with digits followed by ``.`` or ``)`` and a space are
+      treated as ordered list items.  The indentation (spaces or tabs) of
+      the marker determines the nesting level.  Unordered lists cycle
+      through the bullet symbols ``•``, ``◦`` and ``▪`` at increasing
+      nesting depths.  Ordered lists pad numbers with figure spaces so that
+      multi‑digit numbers align.  Continuation lines (those with greater
+      indentation that do not start with a list marker) are indented to
+      align with the text of the previous list item.  Inline formatting
+      inside list items is honoured.
 
-    All other lines are passed through to
-    :func:`_parse_inline_entities`.
+    All other lines are passed through to :func:`_parse_inline_entities`.
 
     Parameters
     ----------
@@ -494,15 +481,13 @@ def _parse_fragment(fragment: str, base_offset: int) -> Tuple[str, List[MessageE
             if block_start_offset is not None:
                 entities.append(
                     MessageEntity(
-                        type='blockquote',
+                        type=current_quote_type,
                         offset=block_start_offset,
                         length=block_length_acc,
-                        collapsed=True if block_collapsed else None,
                     )
                 )
                 block_start_offset = None
                 block_length_acc = 0
-                block_collapsed = False
 
             indent_str = bullet_match.group(1) if bullet_match else number_match.group(1)
             # Compute list nesting level based on indentation: each two spaces = one level, each tab = 2 levels
@@ -544,6 +529,7 @@ def _parse_fragment(fragment: str, base_offset: int) -> Tuple[str, List[MessageE
                     if curr_line.endswith('\n'):
                         output_parts.append('\n')
                         offset += utf16_length('\n')
+                    # Advance line index
                     i += 1
                     # Handle continuation lines: lines that are indented further and do not start with a list marker
                     while i < num_lines:
@@ -662,12 +648,13 @@ def _parse_fragment(fragment: str, base_offset: int) -> Tuple[str, List[MessageE
         else:
             # Finalise any active block quote before handling non‑quote line
             if block_start_offset is not None:
+                # Use expandable_blockquote type for collapsed quotes, blockquote for regular ones
+                entity_type = 'expandable_blockquote' if block_collapsed else 'blockquote'
                 entities.append(
                     MessageEntity(
-                        type='blockquote',
+                        type=entity_type,
                         offset=block_start_offset,
                         length=block_length_acc,
-                        collapsed=True if block_collapsed else None,
                     )
                 )
                 block_start_offset = None
@@ -712,12 +699,13 @@ def _parse_fragment(fragment: str, base_offset: int) -> Tuple[str, List[MessageE
     # include the ``collapsed`` field on the resulting entity.  The
     # entity type is always ``blockquote``【885819747867534†L114-L123】.
     if block_start_offset is not None:
+        # Use expandable_blockquote type for collapsed quotes, blockquote for regular ones
+        entity_type = 'expandable_blockquote' if block_collapsed else 'blockquote'
         entities.append(
             MessageEntity(
-                type='blockquote',
+                type=entity_type,
                 offset=block_start_offset,
                 length=block_length_acc,
-                collapsed=True if block_collapsed else None,
             )
         )
 
