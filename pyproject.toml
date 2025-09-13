@@ -9,7 +9,7 @@ description = "Convert Markdown into plain text and Telegram message entities."
 readme = "README.md"
 requires-python = ">=3.7"
 authors = [
-    {name = "Telegram Markdown Entities Developers", email = "dev@example.com"},
+    {name = "Lebedev Nikolay", email = "fifo.mail@gmail.com"},
 ]
 license = {text = "MIT"}
 keywords = ["telegram", "markdown", "entities", "bot", "tg"]
@@ -21,9 +21,11 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://example.com"
-Source = "https://github.com/yourusername/telegram-markdown-entities"
+Source = "https://github.com/bakaut/telegram-markdown-entities"
+Issues = "https://github.com/bakaut/telegram-markdown-entities/issues"
 
-[tool.setuptools]
-# Explicitly include the package in the distribution
-packages = ["telegram_markdown"]
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
